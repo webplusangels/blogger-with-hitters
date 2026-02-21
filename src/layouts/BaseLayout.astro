@@ -1,0 +1,140 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Search from "../components/Search.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import ModelViewer from "../components/ModelViewer.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string;
+  pubDate?: Date;
+  type?: "website" | "article";
+}
+
+const {
+  title,
+  description = "개발자 기술 블로그 — Astro, TypeScript, 웹 성능 최적화",
+  ogImage,
+  canonicalURL,
+  pubDate,
+  type = "website",
+} = Astro.props;
+
+const siteURL = "https://nimwver.me";
+const canonical = canonicalURL ?? Astro.url.href;
+const ogImageURL = ogImage
+  ? `${siteURL}${ogImage}`
+  : `${siteURL}/og-default.png`;
+const pageTitle = `${title} | nimwver.me`;
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="nimwver.me RSS Feed"
+      href="/rss.xml"
+    />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="nimwver.me" />
+    {pubDate && (
+      <meta
+        property="article:published_time"
+        content={pubDate.toISOString()}
+      />
+    )}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonical} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <script is:inline>
+      (function(){
+        const t = localStorage.getItem("theme");
+        if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen pb-20 bg-stone-50 text-stone-800 dark:bg-[#1a1c1c] dark:text-gray-100 antialiased">
+    <div class="flex justify-center py-6">
+      <ModelViewer src="/models/logo.glb" alt="해파리" />
+    </div>
+
+    <main class="mx-auto max-w-4xl px-6 py-10">
+      <slot />
+    </main>
+
+    <footer class="border-t border-stone-200 dark:border-stone-800">
+      <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
+        <span class="text-sm font-bold text-stone-700 dark:text-stone-400">© {new Date().getFullYear()} ଲ.me. All rights reserved.</span>
+        <div class="flex items-center gap-4">
+          <!-- <div class="w-48">
+            <Search placeholder="검색..." />
+          </div> -->
+          <a href="/" class="min-h-[44px] min-w-[44px] inline-flex items-center text-sm text-stone-500 hover:text-stone-700 dark:text-gray-400 dark:hover:text-stone-400 transition-colors">Home</a>
+          <a href="/rss.xml" class="min-h-[44px] min-w-[44px] inline-flex items-center text-sm text-stone-500 hover:text-stone-700 dark:text-gray-400 dark:hover:text-stone-400 transition-colors">RSS</a>
+        </div>
+      </div>
+    </footer>
+
+    <ThemeToggle />
+
+    <script>
+      function initCopyButtons() {
+        document.querySelectorAll("pre").forEach((pre) => {
+          if (pre.querySelector(".copy-button")) return;
+
+          const btn = document.createElement("button");
+          btn.className = "copy-button";
+          btn.setAttribute("aria-label", "코드 복사");
+          btn.textContent = "복사";
+
+          btn.addEventListener("click", async () => {
+            const code = pre.querySelector("code")?.innerText ?? "";
+            try {
+              await navigator.clipboard.writeText(code);
+              btn.textContent = "완료!";
+              btn.style.color = "#4ade80";
+            } catch {
+              btn.textContent = "실패";
+            }
+            setTimeout(() => {
+              btn.textContent = "복사";
+              btn.style.color = "";
+            }, 2000);
+          });
+
+          pre.appendChild(btn);
+        });
+      }
+
+      document.addEventListener("astro:page-load", initCopyButtons);
+    </script>
+  </body>
+</html>

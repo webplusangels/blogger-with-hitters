@@ -1,0 +1,170 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+
+const posts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// Extract unique categories and tags
+const categories = [
+  ...new Set(posts.map((p) => p.data.category).filter(Boolean)),
+] as string[];
+const allTags = [
+  ...new Set(posts.flatMap((p) => p.data.tags)),
+];
+---
+
+<BaseLayout title="Blog">
+  <section>
+    <h1 class="mb-2 text-3xl font-bold text-stone-900 dark:text-gray-50">🔫</h1>
+    <p class="mb-8 text-stone-500 dark:text-gray-400">작은 블로그</p>
+
+    {/* ── Filter UI ─────────────────────────────── */}
+    <div class="mb-10 space-y-4" id="filters">
+      {/* Category buttons */}
+      {categories.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="filter-btn active rounded-full border border-stone-600 bg-stone-600/10 px-4 py-1.5 text-sm font-medium text-stone-700 dark:border-stone-400 dark:bg-stone-400/10 dark:text-stone-400 transition-colors"
+            data-filter="category"
+            data-value="all"
+            aria-pressed="true"
+          >
+            전체
+          </button>
+          {categories.map((cat) => (
+            <button
+              type="button"
+              class="filter-btn rounded-full border border-stone-300 px-4 py-1.5 text-sm text-stone-500 dark:border-gray-700 dark:text-gray-400 transition-colors hover:border-stone-600 hover:text-stone-700 dark:hover:border-stone-400 dark:hover:text-stone-400"
+              data-filter="category"
+              data-value={cat}
+              aria-pressed="false"
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Tag buttons */}
+      {allTags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {allTags.map((tag) => (
+            <button
+              type="button"
+              class="filter-btn rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs text-stone-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-500 transition-colors hover:border-stone-600 hover:text-stone-700 dark:hover:border-stone-400 dark:hover:text-stone-400"
+              data-filter="tag"
+              data-value={tag}
+              aria-pressed="false"
+            >
+              #{tag}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* ── Post list ─────────────────────────────── */}
+    {posts.length === 0 ? (
+      <p class="text-stone-500 dark:text-gray-500">아직 작성된 포스트가 없습니다.</p>
+    ) : (
+      <ul class="space-y-6" id="post-list" data-pagefind-body>
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </ul>
+    )}
+
+    {/* ── No results message ────────────────────── */}
+    <p
+      id="no-results"
+      class="hidden py-12 text-center text-stone-500 dark:text-gray-500"
+    >
+      해당 조건에 맞는 포스트가 없습니다.
+    </p>
+  </section>
+</BaseLayout>
+
+<script>
+  function initFilters() {
+    const filterBtns = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+    const postCards = document.querySelectorAll<HTMLElement>(".post-card");
+    const noResults = document.getElementById("no-results");
+
+    if (filterBtns.length === 0 || postCards.length === 0) return;
+
+    let activeCategory = "all";
+    let activeTags = new Set<string>();
+
+    function applyFilters() {
+      let visibleCount = 0;
+
+      postCards.forEach((card) => {
+        const cardCategory = card.dataset.category ?? "";
+        const cardTags = (card.dataset.tags ?? "").split(",").filter(Boolean);
+
+        const matchCategory =
+          activeCategory === "all" || cardCategory === activeCategory;
+        const matchTags =
+          activeTags.size === 0 ||
+          [...activeTags].some((t) => cardTags.includes(t));
+
+        if (matchCategory && matchTags) {
+          card.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (noResults) {
+        noResults.classList.toggle("hidden", visibleCount > 0);
+      }
+    }
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const filterType = btn.dataset.filter;
+        const value = btn.dataset.value ?? "";
+
+        if (filterType === "category") {
+          activeCategory = value;
+
+          // Update category button styles and aria-pressed
+          document
+            .querySelectorAll<HTMLButtonElement>('[data-filter="category"]')
+            .forEach((b) => {
+              if (b.dataset.value === value) {
+                b.classList.add("active", "border-stone-600", "bg-stone-600/10", "text-stone-700");
+                b.classList.remove("border-stone-300", "text-stone-500");
+                b.setAttribute("aria-pressed", "true");
+              } else {
+                b.classList.remove("active", "border-stone-600", "bg-stone-600/10", "text-stone-700");
+                b.classList.add("border-stone-300", "text-stone-500");
+                b.setAttribute("aria-pressed", "false");
+              }
+            });
+        } else if (filterType === "tag") {
+          if (activeTags.has(value)) {
+            activeTags.delete(value);
+            btn.classList.remove("border-stone-600", "text-stone-700", "bg-stone-600/10");
+            btn.classList.add("border-stone-200", "text-stone-500", "bg-stone-100");
+            btn.setAttribute("aria-pressed", "false");
+          } else {
+            activeTags.add(value);
+            btn.classList.add("border-stone-600", "text-stone-700", "bg-stone-600/10");
+            btn.classList.remove("border-stone-200", "text-stone-500", "bg-stone-100");
+            btn.setAttribute("aria-pressed", "true");
+          }
+        }
+
+        applyFilters();
+      });
+    });
+  }
+
+  document.addEventListener("astro:page-load", initFilters);
+</script>
