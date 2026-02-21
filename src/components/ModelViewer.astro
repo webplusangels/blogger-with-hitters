@@ -1,0 +1,29 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+
+interface Props {
+  src: string;
+  alt?: string;
+}
+
+const { src, alt = "3D 모델" } = Astro.props;
+
+const publicPath = path.join(process.cwd(), "public", src);
+const fileExists = fs.existsSync(publicPath);
+---
+
+{fileExists ? (
+  <model-viewer
+    src={src}
+    alt={alt}
+    auto-rotate
+    rotation-per-second="30deg"
+    interaction-prompt="none"
+    loading="lazy"
+    reveal="auto"
+    style="display: block; width: 140px; height: 140px; margin: 0 auto;"
+  ></model-viewer>
+) : (
+  <div></div>
+)}

@@ -1,0 +1,55 @@
+---
+import SearchComponent from "astro-pagefind/components/Search";
+
+interface Props {
+  className?: string;
+  placeholder?: string;
+}
+
+const { className = "", placeholder = "Search posts..." } = Astro.props;
+---
+
+<div class={`relative ${className}`}>
+  <SearchComponent
+    id="search"
+    className="pagefind-ui"
+    uiOptions={{
+      showImages: false,
+      excerptLength: 20,
+      showSubResults: true,
+      placeholder: placeholder,
+    }}
+  />
+
+  <style>
+    :global(.pagefind-ui__search-input) {
+      height: 36px !important;
+      padding: 0 0.75rem !important;
+      font-size: 0.875rem !important;
+    }
+    :global(.pagefind-ui__search-input:focus) {
+      outline: 2px solid #44403c;
+      outline-offset: 2px;
+    }
+    :global(html.dark .pagefind-ui__search-input:focus) {
+      outline: 2px solid #a8a29e;
+      outline-offset: 2px;
+    }
+    :global(.pagefind-ui__form) {
+      position: relative;
+    }
+    :global(.pagefind-ui__drawer) {
+      position: absolute;
+      bottom: calc(100% + 4px);
+      right: 0;
+      width: 420px;
+      max-height: 60vh;
+      overflow-y: auto;
+      z-index: 100;
+      background: var(--pagefind-ui-background);
+      border: 1px solid var(--pagefind-ui-border);
+      border-radius: var(--pagefind-ui-border-radius);
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</div>

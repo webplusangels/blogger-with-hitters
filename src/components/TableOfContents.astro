@@ -1,0 +1,85 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <nav class="hidden xl:block" aria-label="목차">
+    <div class="sticky top-24">
+      <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-400 dark:text-gray-500">
+        목차
+      </p>
+      <ul class="space-y-2 border-l border-stone-200 dark:border-gray-800 text-sm">
+        {filteredHeadings.map((heading) => (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class:list={[
+                "toc-link block border-l-2 transition-colors duration-150",
+                heading.depth === 2
+                  ? "border-transparent py-1 pl-4 text-stone-500 hover:border-stone-600 hover:text-stone-700 dark:text-gray-400 dark:hover:border-stone-400 dark:hover:text-stone-400"
+                  : "border-transparent py-1 pl-8 text-stone-400 hover:border-stone-600 hover:text-stone-700 dark:text-gray-500 dark:hover:border-stone-400 dark:hover:text-stone-400",
+              ]}
+              data-heading-slug={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+)}
+
+<script>
+  function initTOC() {
+    const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-link");
+    if (tocLinks.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const slug = entry.target.id;
+            tocLinks.forEach((link) => {
+              if (link.dataset.headingSlug === slug) {
+                link.classList.add("!border-stone-600", "!text-stone-700", "dark:!border-stone-400", "dark:!text-stone-400", "font-medium");
+              } else {
+                link.classList.remove("!border-stone-600", "!text-stone-700", "dark:!border-stone-400", "dark:!text-stone-400", "font-medium");
+              }
+            });
+          }
+        }
+      },
+      { rootMargin: "0px 0px -70% 0px", threshold: 0 }
+    );
+
+    const slugs = Array.from(tocLinks).map((l) => l.dataset.headingSlug);
+    slugs.forEach((slug) => {
+      if (slug) {
+        const el = document.getElementById(slug);
+        if (el) observer.observe(el);
+      }
+    });
+
+    // Clean up on page transition
+    document.addEventListener(
+      "astro:before-swap",
+      () => observer.disconnect(),
+      { once: true }
+    );
+  }
+
+  document.addEventListener("astro:page-load", initTOC);
+</script>

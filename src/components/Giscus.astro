@@ -1,0 +1,43 @@
+---
+/**
+ * Giscus 댓글 컴포넌트
+ *
+ * 사용 전 필수 설정:
+ * 1. GitHub repo(webplusangels/blogger-with-hitters) → Settings → Features → Discussions 활성화
+ * 2. https://giscus.app 에서 설정값 생성
+ * 3. 아래 REPLACE_WITH_REPO_ID, REPLACE_WITH_CATEGORY_ID를 실제 값으로 교체
+ */
+---
+
+<section class="mt-16 border-t border-stone-200 dark:border-gray-800 pt-10" id="comments">
+  <h2 class="mb-6 text-lg font-semibold text-stone-700 dark:text-gray-200">댓글</h2>
+  <div class="giscus"></div>
+</section>
+
+<script>
+  function initGiscus() {
+    const container = document.querySelector(".giscus");
+    if (!container || container.querySelector("iframe")) return;
+
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.setAttribute("data-repo", "webplusangels/blogger-with-hitters");
+    script.setAttribute("data-repo-id", "REPLACE_WITH_REPO_ID");
+    script.setAttribute("data-category", "Announcements");
+    script.setAttribute("data-category-id", "REPLACE_WITH_CATEGORY_ID");
+    script.setAttribute("data-mapping", "pathname");
+    script.setAttribute("data-strict", "0");
+    script.setAttribute("data-reactions-enabled", "1");
+    script.setAttribute("data-emit-metadata", "0");
+    script.setAttribute("data-input-position", "top");
+    script.setAttribute("data-theme", document.documentElement.classList.contains("dark") ? "dark_dimmed" : "light");
+    script.setAttribute("data-lang", "ko");
+    script.setAttribute("data-loading", "lazy");
+    script.crossOrigin = "anonymous";
+    script.async = true;
+
+    container.appendChild(script);
+  }
+
+  document.addEventListener("astro:page-load", initGiscus);
+</script>
