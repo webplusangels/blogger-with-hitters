@@ -42,6 +42,13 @@ const pageTitle = `${title} | nimwver.me`;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0e7490" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1c1c" />
 
     <link
       rel="alternate"
@@ -70,6 +77,33 @@ const pageTitle = `${title} | nimwver.me`;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL} />
 
+    {/* Google/Naver 소유권 확인 — 발급받은 코드로 교체 후 주석 해제 필요 */}
+    {/* <meta name="google-site-verification" content="YOUR_GOOGLE_CODE_HERE" /> */}
+    {/* <meta name="naver-site-verification" content="YOUR_NAVER_CODE_HERE" /> */}
+
+    <script type="application/ld+json" set:html={JSON.stringify(
+      type === "article"
+        ? {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": pageTitle,
+            "description": description,
+            "url": canonical,
+            ...(pubDate ? { "datePublished": pubDate.toISOString() } : {}),
+            "publisher": {
+              "@type": "Person",
+              "name": "nimwver",
+              "url": siteURL,
+            },
+          }
+        : {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "nimwver.me",
+            "url": siteURL,
+            "description": description,
+          }
+    )} />
     <script is:inline>
       (function(){
         const t = localStorage.getItem("theme");
