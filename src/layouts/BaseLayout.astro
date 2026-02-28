@@ -104,12 +104,16 @@ const pageTitle = `${title} | nimwver.me`;
           }
     )} />
     <script is:inline>
-      (function(){
+      function applyTheme() {
         const t = localStorage.getItem("theme");
         if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
           document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
         }
-      })();
+      }
+      applyTheme();
+      document.addEventListener("astro:after-swap", applyTheme);
     </script>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <ClientRouter />
