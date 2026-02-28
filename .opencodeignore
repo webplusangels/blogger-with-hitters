@@ -1,0 +1,7 @@
+# .opencodeignore
+dist/
+node_modules/
+public/models/ # 3D 모델 같은 바이너리 파일 차단
+public/images/
+.astro/
+*.lock
