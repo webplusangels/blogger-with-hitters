@@ -1,6 +1,5 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import Search from "../components/Search.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import ModelViewer from "../components/ModelViewer.astro";
 import "../styles/global.css";
@@ -128,10 +127,6 @@ const pageTitle = `${title} | nimwver.me`;
       <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
         <span class="text-sm font-bold text-stone-700 dark:text-stone-400">© {new Date().getFullYear()} ଲ.me. All rights reserved.</span>
         <div class="flex items-center gap-4">
-          <!-- <div class="w-48">
-            <Search placeholder="검색..." />
-          </div> -->
-          <a href="/" class="min-h-[44px] min-w-[44px] inline-flex items-center text-sm text-stone-500 hover:text-stone-700 dark:text-gray-400 dark:hover:text-stone-400 transition-colors">Home</a>
           <a href="/rss.xml" class="min-h-[44px] min-w-[44px] inline-flex items-center text-sm text-stone-500 hover:text-stone-700 dark:text-gray-400 dark:hover:text-stone-400 transition-colors">RSS</a>
         </div>
       </div>

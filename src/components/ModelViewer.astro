@@ -22,8 +22,29 @@ const fileExists = fs.existsSync(publicPath);
     interaction-prompt="none"
     loading="lazy"
     reveal="auto"
-    style="display: block; width: 140px; height: 140px; margin: 0 auto;"
+    role="link"
+    aria-label="홈으로 이동"
+    tabindex="0"
+    style="display: block; width: 140px; height: 140px; margin: 0 auto; cursor: pointer;"
   ></model-viewer>
 ) : (
   <div></div>
 )}
+
+<script>
+  import { navigate } from 'astro:transitions/client';
+
+  function initModelViewerNav() {
+    const viewer = document.querySelector('model-viewer');
+    if (!viewer) return;
+    viewer.addEventListener('click', () => navigate('/'));
+    viewer.addEventListener('keydown', (e: Event) => {
+      const key = (e as KeyboardEvent).key;
+      if (key === 'Enter' || key === ' ') {
+        e.preventDefault();
+        navigate('/');
+      }
+    });
+  }
+  document.addEventListener('astro:page-load', initModelViewerNav);
+</script>
